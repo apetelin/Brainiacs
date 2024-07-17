@@ -1,4 +1,4 @@
-import VoiceCircle from '../components/VoiceCircle';
+import {VoiceCircle} from '../components/VoiceCircle';
 
 export default function Home() {
   return (
