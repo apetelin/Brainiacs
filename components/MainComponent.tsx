@@ -127,7 +127,7 @@ export const MainComponent: React.FC = () => {
                         <button
                             className="absolute inset-0 rounded-full border-none cursor-pointer bg-transparent z-10 flex flex-col items-center justify-center transition-all duration-300 ease-in-out"
                             onClick={handleToggleListening}
-                            disabled={isStarting || isStopping}
+                            disabled={isStarting || isStopping || isTranscribing}
                             style={{
                                 backgroundColor: isListening ? 'rgba(75, 75, 75, 0.7)' : 'rgba(75, 75, 75, 0.8)',
                             }}
