@@ -38,6 +38,7 @@ async function initializeConversation(): Promise<ConversationMessage[] | null> {
     conversation.push({ role: 'system', content: 'If final decision is made by AI assistant then response MUST contain phrase "#END_CHAT#"' });
     conversation.push({ role: 'system', content: 'If function "create_payment" was successfully executed then response MUST contain phrase "#END_CHAT#"' });
     conversation.push({ role: 'system', content: 'Do NOT continue conversation once #END_CHAT# was added to assistant reposponse' });
+    conversation.push({ role: 'system', content: 'AI assistant should get explicit confirmation from person with dementia if payment is safe and valid.' });
     const relatives = await prisma.relative.findMany();
     console.debug('relatives:');
     console.debug(JSON.stringify(relatives));
