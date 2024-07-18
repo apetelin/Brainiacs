@@ -1,18 +1,10 @@
 import { NextResponse } from 'next/server';
+import { createSseStream } from '@/lib/sseHandler';
 
-const clients = new Set<ReadableStreamDefaultController>();
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    const stream = new ReadableStream({
-        start(controller) {
-            clients.add(controller);
-
-            return () => {
-                clients.delete(controller);
-            };
-        },
-    });
-
+    const stream = createSseStream();
     return new NextResponse(stream, {
         headers: {
             'Content-Type': 'text/event-stream',
@@ -21,13 +13,3 @@ export async function GET() {
         },
     });
 }
-
-export function sendEventToAll(data: any) {
-    const encoder = new TextEncoder();
-    clients.forEach(client => {
-        client.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
-    });
-}
-
-// Make sendEventToAll available globally
-(global as any).sendEventToAll = sendEventToAll;
