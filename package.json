@@ -15,6 +15,8 @@
     "@langchain/core": "^0.2.16",
     "@langchain/langgraph": "^0.0.28",
     "@langchain/openai": "^0.2.2",
+    "@types/lodash": "^4.17.7",
+    "lodash": "^4.17.21",
     "next": "14.2.5",
     "openai": "^4.52.7",
     "react": "^18",

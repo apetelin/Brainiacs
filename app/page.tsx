@@ -1,9 +1,9 @@
-import {VoiceCircle} from '../components/VoiceCircle';
+import {MainComponent} from '../components/MainComponent';
 
 export default function Home() {
   return (
       <main>
-        <VoiceCircle />
+        <MainComponent />
       </main>
   );
 }
