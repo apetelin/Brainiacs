@@ -11,7 +11,7 @@ const UserSelector: React.FC = () => {
     };
 
     return (
-        <select onChange={handleChange} className="absolute top-4 right-4 bg-gray-800 text-white p-2 rounded">
+        <select onChange={handleChange} className="absolute top-4 right-4 bg-gray-800 text-white p-2 rounded z-50">
             <option value="Stacy">Stacy (User)</option>
             <option value="Mary">Mary (Admin)</option>
         </select>

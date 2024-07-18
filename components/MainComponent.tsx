@@ -7,14 +7,22 @@ import { useAudioRecording } from './useAudioRecording';
 import { circles, maxCircleSize, maxVolume } from './constants';
 import { TranscriptionHistory } from './TranscriptionHistory';
 import { VolumeBar } from './VolumeBar';
-import { AuroraBackground } from './AuroraBackground';
+import { TTSComponent } from "@/components/TTSComponent";
+import { useUser } from './UserContext'; // New import
+import AdminDashboard from './AdminDashboard';
+import { AuroraBackground } from "@/components/AuroraBackground"; // New import
+import { EventSourceProvider } from './EventSourceContext';
 
 interface Transcription {
     text: string;
     timestamp: Date;
 }
 
+const MAX_POSSIBLE_VOLUME = 200;
+
 export const MainComponent: React.FC = () => {
+    const { user } = useUser(); // New line
+
     const {
         isListening,
         isStarting,
@@ -28,7 +36,7 @@ export const MainComponent: React.FC = () => {
     } = useAudioRecording();
 
     const [transcriptionHistory, setTranscriptionHistory] = React.useState<Transcription[]>([]);
-    const [currentMaxVolume, setCurrentMaxVolume] = React.useState(0);
+    const [maxVolume, setMaxVolume] = React.useState(0);
 
     React.useEffect(() => {
         if (transcribedText) {
@@ -40,23 +48,23 @@ export const MainComponent: React.FC = () => {
     }, [transcribedText]);
 
     React.useEffect(() => {
-        if (volume > currentMaxVolume) {
-            setCurrentMaxVolume(volume);
+        if (volume > maxVolume) {
+            setMaxVolume(volume);
         }
     }, [volume]);
 
     React.useEffect(() => {
         if (!isListening) {
-            setCurrentMaxVolume(0);
+            setMaxVolume(0);
         }
     }, [isListening]);
 
-    const normalizedVolume = volume / maxVolume;
+    const normalizedVolume = volume / MAX_POSSIBLE_VOLUME;
 
     // Render function for circle components
     const renderCircles = () => {
         return circles.map((circle, index) => {
-            const currentSize = circle.baseSize + normalizedVolume * circle.baseSize * circle.scaleFactor;
+            const currentSize = circle.baseSize + circle.scaleFactor * normalizedVolume * (maxCircleSize - circle.baseSize);
             const size = Math.min(currentSize, maxCircleSize);
             return (
                 <div
@@ -83,6 +91,11 @@ export const MainComponent: React.FC = () => {
         console.log('Toggle button clicked. Current isListening state:', isListening);
         toggleListening();
     }, [toggleListening, isListening]);
+
+    // New conditional rendering based on user role
+    if (user === 'Mary') {
+        return <EventSourceProvider><AdminDashboard /></EventSourceProvider>;
+    }
 
     return (
         <React.Fragment>
@@ -119,8 +132,8 @@ export const MainComponent: React.FC = () => {
                     <div className="ml-8">
                         <VolumeBar
                             volume={volume}
-                            maxVolume={currentMaxVolume}
-                            maxPossibleVolume={maxVolume}
+                            maxVolume={maxVolume}
+                            maxPossibleVolume={MAX_POSSIBLE_VOLUME}
                         />
                     </div>
                 </div>
@@ -129,6 +142,7 @@ export const MainComponent: React.FC = () => {
                     {transcriptionError && <p className="text-red-500">{transcriptionError}</p>}
                 </div>
                 <TranscriptionHistory transcriptions={transcriptionHistory} />
+                <TTSComponent />
             </div>
         </React.Fragment>
     );

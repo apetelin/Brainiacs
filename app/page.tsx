@@ -1,3 +1,4 @@
+"use client";
 // app/page.tsx
 import { UserProvider } from '@/components/UserContext';
 import UserSelector from '../components/UserSelector';
