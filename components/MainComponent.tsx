@@ -7,6 +7,7 @@ import { useAudioRecording } from './useAudioRecording';
 import { circles, maxCircleSize } from './constants';
 import { TranscriptionHistory } from './TranscriptionHistory';
 import { VolumeBar } from './VolumeBar';
+import {TTSComponent} from "@/components/TTSComponent";
 
 interface Transcription {
     text: string;
@@ -129,6 +130,7 @@ export const MainComponent: React.FC = () => {
                     {transcriptionError && <p className="text-red-500">{transcriptionError}</p>}
                 </div>
                 <TranscriptionHistory transcriptions={transcriptionHistory} />
+                <TTSComponent />
             </div>
         </React.Fragment>
     );
