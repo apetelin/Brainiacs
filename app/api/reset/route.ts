@@ -10,6 +10,7 @@ export async function GET(){
                 },
             },
         });
+        return NextResponse.json({'status': 'OK'});
     }
     catch (error) {
         console.error('Failed to reset payments:', error);
