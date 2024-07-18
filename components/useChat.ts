@@ -30,6 +30,10 @@ export function useChat() {
             if (json.conversationId) {
                 setConversationId(json.conversationId);
             }
+            if (json.conversationCompeted) {
+                console.log("Conversation Competed");
+                setConversationId(undefined);
+            }
         })
             .catch((e) => setSending("Error sending message"))
     }

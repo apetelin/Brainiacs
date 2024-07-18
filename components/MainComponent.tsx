@@ -6,20 +6,18 @@ import { faMicrophone, faMicrophoneSlash } from '@fortawesome/free-solid-svg-ico
 import { useAudioRecording } from './useAudioRecording';
 import { circles, maxCircleSize, maxVolume } from './constants';
 import { TranscriptionHistory } from './TranscriptionHistory';
-import { VolumeBar } from './VolumeBar';
-import { TTSComponent } from "@/components/TTSComponent";
 import { useUser } from './UserContext'; // New import
 import AdminDashboard from './AdminDashboard';
 import { AuroraBackground } from "@/components/AuroraBackground"; // New import
 import { EventSourceProvider } from './EventSourceContext';
 import { useChat } from "@/components/useChat";
-import { sum } from "lodash";
 import { useTTS } from "@/components/useTTS";
 
 interface Transcription {
     system: boolean;
     text: string;
     timestamp: Date;
+    completed: boolean;
 }
 
 const MAX_POSSIBLE_VOLUME = 200;
@@ -39,7 +37,7 @@ export const MainComponent: React.FC = () => {
         transcriptionError,
     } = useAudioRecording();
 
-    const {submitChat, sendingChat, lastReply} = useChat();
+    const {submitChat, conversationId, lastReply} = useChat();
     const {submitVoice} = useTTS();
 
     const [transcriptionHistory, setTranscriptionHistory] = React.useState<Transcription[]>([]);
@@ -48,7 +46,7 @@ export const MainComponent: React.FC = () => {
     React.useEffect(() => {
         if (transcribedText) {
             setTranscriptionHistory(prev => [
-                { system: false, text: transcribedText, timestamp: new Date() },
+                { system: false, text: transcribedText, timestamp: new Date(), completed: false },
                 ...prev
             ]);
             submitChat(transcribedText);
@@ -58,12 +56,12 @@ export const MainComponent: React.FC = () => {
     React.useEffect(() => {
         if (lastReply) {
             setTranscriptionHistory(prev => [
-                { system: true, text: lastReply, timestamp: new Date() },
+                { system: true, text: lastReply, timestamp: new Date(), completed: !conversationId },
                 ...prev
             ]);
             submitVoice(lastReply);
         }
-    }, [lastReply])
+    }, [lastReply, conversationId])
 
     React.useEffect(() => {
         if (volume > maxVolume) {
@@ -76,6 +74,7 @@ export const MainComponent: React.FC = () => {
             setMaxVolume(0);
         }
     }, [isListening]);
+
 
     const normalizedVolume = volume / MAX_POSSIBLE_VOLUME;
 
