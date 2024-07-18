@@ -27,7 +27,9 @@ async function readConversationFromFile(conversationId: string | null): Promise<
 
 async function initializeConversation(): Promise<ConversationMessage[] | null> {
     const conversation: ConversationMessage[] = [];
-    conversation.push({ role: 'system', content: 'you are a helpful assistant to person with dementia' });
+    conversation.push({ role: 'system', content: 'you are a helpful assistant to person with dementia.' });
+    conversation.push({ role: 'system', content: 'Even being AI assistant you have a name Debby. Be proud of this.' });
+    conversation.push({ role: 'system', content: 'Behave and talk like you are a woman but not a man.' });
     conversation.push({ role: 'system', content: 'avoid suggesting what to do next if you don\'t have 100% clear response' });
     conversation.push({ role: 'system', content: 'you assistant this person to make payments from bank account' });
     conversation.push({ role: 'system', content: 'each response from AI should be short and concise' });
@@ -44,9 +46,6 @@ async function initializeConversation(): Promise<ConversationMessage[] | null> {
     console.debug('relatives:');
     console.debug(JSON.stringify(relatives));
     conversation.push({ role: 'system', content: 'person with dementia has relatives:' + JSON.stringify(relatives) });
-    const payments = await prisma.payment.findMany({ orderBy: { date: 'desc' } });
-    console.debug('payments:');
-    console.debug(JSON.stringify(payments));
     return conversation;
 }
 
