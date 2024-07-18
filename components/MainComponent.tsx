@@ -7,7 +7,9 @@ import { useAudioRecording } from './useAudioRecording';
 import { circles, maxCircleSize } from './constants';
 import { TranscriptionHistory } from './TranscriptionHistory';
 import { VolumeBar } from './VolumeBar';
-import {TTSComponent} from "@/components/TTSComponent";
+import { TTSComponent } from "@/components/TTSComponent";
+import { useUser } from './UserContext'; // New import
+import AdminDashboard from './AdminDashboard'; // New import
 
 interface Transcription {
     text: string;
@@ -17,6 +19,8 @@ interface Transcription {
 const MAX_POSSIBLE_VOLUME = 200;
 
 export const MainComponent: React.FC = () => {
+    const { user } = useUser(); // New line
+
     const {
         isListening,
         isStarting,
@@ -85,6 +89,11 @@ export const MainComponent: React.FC = () => {
         console.log('Toggle button clicked. Current isListening state:', isListening);
         toggleListening();
     }, [toggleListening, isListening]);
+
+    // New conditional rendering based on user role
+    if (user === 'Mary') {
+        return <AdminDashboard />;
+    }
 
     return (
         <React.Fragment>
