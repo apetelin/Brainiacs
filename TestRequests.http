@@ -66,11 +66,19 @@ POST http://localhost:3000/api/chat
 Content-Type: application/x-www-form-urlencoded
 
 userMessage =
-"I want to make a donation of $25 to the local animal shelter called 'Paws and Claws' on Main Street."
+"I want to make a donation of $125 to the local animal shelter called 'Paws and Fur' on Main Street. I think you just need a phone number to make a payment."
+
 
 ### POST to chat (continue)
 POST http://localhost:3000/api/chat
 Content-Type: application/x-www-form-urlencoded
 
-userMessage = "9191231234" &
-conversationId = 20240718155839447
+userMessage = "Phone number is 9191231234" &
+conversationId = 20240718164102113
+
+### POST to chat (continue)
+POST http://localhost:3000/api/chat
+Content-Type: application/x-www-form-urlencoded
+
+userMessage = "I don't want anymore" &
+conversationId = 20240718164501307
