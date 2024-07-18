@@ -1,0 +1,76 @@
+### GET request to assistant
+GET http://localhost:3000/api/assistant
+
+### POST request to assistant
+POST http://localhost:3000/api/assistant
+Content-Type: application/json
+
+{
+    "message": "What is 1 + 1?"
+}
+
+### POST database request to assistant
+POST http://localhost:3000/api/assistant
+Content-Type: application/json
+
+{
+  "message": "List all the relatives in the database."
+}
+
+### POST to TTS
+POST http://localhost:3000/api/tts
+Content-Type: application/json
+
+{
+    "text": "The answer is 2.",
+    "voice": "nova"
+}
+
+### GET payments
+GET http://localhost:3000/api/payments
+
+### GET relatives
+GET http://localhost:3000/api/relatives
+
+### Test SSE
+GET http://localhost:3000/api/test-sse
+
+### POST new random payment
+POST http://localhost:3000/api/payments
+Content-Type: application/json
+
+{
+  "userId": {{$random.integer(1, 10)}},
+  "date": "{{$isoTimestamp}}",
+  "recipient": "Test Recipient {{$random.integer(1, 100)}}",
+  "phone": "{{$random.integer(100, 999)}}-{{$random.integer(100, 999)}}-{{$random.integer(1000, 9999)}}",
+  "details": "Test payment details",
+  "amount": {{$random.float(50, 200)}}
+}
+
+### POST new random payment to PROD
+POST https://debby-brainiacs.apps.dbh.db-hackathon.org/api/payments
+Content-Type: application/json
+
+{
+  "userId": {{$random.integer(1, 10)}},
+  "date": "{{$isoTimestamp}}",
+  "recipient": "Test Recipient {{$random.integer(1, 100)}}",
+  "phone": "{{$random.integer(100, 999)}}-{{$random.integer(100, 999)}}-{{$random.integer(1000, 9999)}}",
+  "details": "Test payment details",
+  "amount": {{$random.float(50, 200)}}
+}
+
+### POST to chat
+POST http://localhost:3000/api/chat
+Content-Type: application/x-www-form-urlencoded
+
+userMessage =
+"I want to make a donation of $25 to the local animal shelter called 'Paws and Claws' on Main Street."
+
+### POST to chat (continue)
+POST http://localhost:3000/api/chat
+Content-Type: application/x-www-form-urlencoded
+
+userMessage = "9191231234" &
+conversationId = 20240718155839447
