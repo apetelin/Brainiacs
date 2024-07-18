@@ -3,9 +3,18 @@
 import { prisma } from '@/lib/prisma';
 
 export async function addRelative(formData: FormData) {
-    const { userId, name, dob, address, phone } = Object.fromEntries(formData) as any;
+    const data = Object.fromEntries(formData);
+    const relativeData: Prisma.RelativeCreateInput = {
+        userId: parseInt(data.userId as string),
+        name: data.name as string,
+        dob: data.dob as string,
+        address: data.address as string,
+        phone: data.phone as string,
+        relationship: data.relationship as string
+    };
+
     return prisma.relative.create({
-        data: { userId: parseInt(userId), name, dob, address, phone },
+        data: relativeData,
     });
 }
 

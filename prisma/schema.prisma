@@ -8,12 +8,15 @@ datasource db {
 }
 
 model Relative {
-  id      Int    @id @default(autoincrement())
-  userId  Int
-  name    String
-  dob     String
-  address String
-  phone   String
+  id           Int    @id @default(autoincrement())
+  userId       Int
+  name         String
+  dob          String
+  address      String
+  phone        String @unique
+  relationship String @default("Unknown")
+
+  @@unique([userId, name, dob])
 }
 
 model Payment {
@@ -23,4 +26,6 @@ model Payment {
   recipient String
   phone     String
   details   String
+
+  @@unique([userId, date, recipient])
 }
