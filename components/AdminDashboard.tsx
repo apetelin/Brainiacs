@@ -149,7 +149,7 @@ const AdminDashboard: React.FC = () => {
                         <tr key={payment.id} className={index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750'}>
                             <td className="p-3 border-t border-gray-700">{payment.id}</td>
                             <td className="p-3 border-t border-gray-700">{payment.userId}</td>
-                            <td className="p-3 border-t border-gray-700">{payment.date}</td>
+                            <td className="p-3 border-t border-gray-700">{new Date(payment.date).toLocaleString()}</td>
                             <td className="p-3 border-t border-gray-700">{payment.recipient}</td>
                             <td className="p-3 border-t border-gray-700">{payment.phone}</td>
                             <td className="p-3 border-t border-gray-700">{payment.details}</td>
