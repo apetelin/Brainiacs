@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(){
     try {
         const payments = await prisma.payment.deleteMany({
             where: {
-                userId: {
+                id: {
                     gt: 347,
                 },
             },
