@@ -154,7 +154,7 @@ const AdminDashboard: React.FC = () => {
                             <td className="p-3 border-t border-gray-700">{payment.phone}</td>
                             <td className="p-3 border-t border-gray-700">{payment.details}</td>
                             <td className="p-3 border-t border-gray-700">${payment.amount.toFixed(2)}</td>
-                            <td className="p-3 border-t border-gray-700">{payment.status}</td>
+                            <td className={`p-3 border-t border-gray-700 ${payment.status === 'approved' ? 'text-green-500' : payment.status === 'rejected' ? 'text-red-600' : 'text-blue-500'}`}>{payment.status}</td>
                             <td className="p-3 border-t border-gray-700">{payment.isApproved === null ? 'N/A' : payment.isApproved ? 'Yes' : 'No'}</td>
                         </tr>
                     ))}
