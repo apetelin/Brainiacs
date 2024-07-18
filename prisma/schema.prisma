@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Relative {
+  id           Int    @id @default(autoincrement())
+  userId       Int
+  name         String
+  dob          String
+  address      String
+  phone        String @unique
+  relationship String @default("Unknown")
+
+  @@unique([userId, name, dob])
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  date        String
+  recipient   String
+  phone       String
+  details     String
+  amount      Float
+  status      String   @default("pending") // Can be "pending", "approved", "rejected", "notified"
+  isApproved  Boolean? // null for notifications, true/false for approval requests
+
+  @@unique([userId, date, recipient])
+}
