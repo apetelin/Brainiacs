@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { promises as fs } from 'fs';
+import { prisma } from '@/lib/prisma';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -23,13 +24,26 @@ async function readConversationFromFile(conversationId: string | null): Promise<
     }
 }
 
-function initializeConversation(): ConversationMessage[] {
+async function initializeConversation(): Promise<ConversationMessage[] | null> {
     const conversation: ConversationMessage[] = [];
     conversation.push({ role: 'system', content: 'you are a helpful assistant to person with dementia' });
+    conversation.push({ role: 'system', content: 'avoid suggesting what to do next if you don\'t have 100% clear response' });
     conversation.push({ role: 'system', content: 'you assistant this person to make payments from bank account' });
     conversation.push({ role: 'system', content: 'each response from AI should be short and concise' });
     conversation.push({ role: 'system', content: 'payment could be done from checking account only' });
     conversation.push({ role: 'system', content: 'person with dementia is allowed to make an online transfer only, no check is allowed' });
+    conversation.push({ role: 'system', content: 'AI assistant that is designed for people with dementia, their caregivers, and their family members. The AI assistant is designed to help people with dementia pay their bills on time, make money transfers, and manage their finances. The AI assistant is also designed to help caregivers and family members keep track of the person with dementia\'s finances and make sure that they are being taken care of properly. The two main features are: 1. Bill Payment: The AI assistant will remind the person with dementia to pay their bills on time and help them make the payment. 2. Money Transfer: The AI assistant will help the person with dementia transfer money to their caregivers or family members. The AI assistant will be able to communicate with the person with dementia through voice commands and text messages. The AI assistant will also be able to send notifications to the person with dementia\'s caregivers and family members to keep them updated on the person with dementia\'s finances. The UI of the AI assistant will be simple and easy to use, with large buttons and clear text. The AI assistant will also have a voice command feature that will allow the person with dementia to interact with the AI assistant using their voice. From the technical perspective, the AI assistant will be built using OpenAI and/or Anthropic services avaialable via API. The AI assistant will be able to understand natural language and respond to voice commands. The AI assistant will also be able to access the person with dementia\'s financial information securely and make payments on their behalf. The proposed frontend framework is React.js and the backend framework is Express.js or Next.js. The database will be PostgreSQL. Potentially, as a stretch goal, the AI assistant will include AI video avatar that will help the person with dementia feel more comfortable and engaged with the AI assistant.' });
+    conversation.push({ role: 'system', content: 'AI assistant must come to one decision only: if payment that person with dementia is relative and safe or the payment is not acceptable due to scam or out of sense to be made.' });
+    conversation.push({ role: 'system', content: 'If final decision is made by AI assistant then response MUST contain phrase "#END_CHAT#"' });
+    conversation.push({ role: 'system', content: 'If function "create_payment" was successfully executed then response MUST contain phrase "#END_CHAT#"' });
+    conversation.push({ role: 'system', content: 'Do NOT continue conversation once #END_CHAT# was added to assistant reposponse' });
+    const relatives = await prisma.relative.findMany();
+    console.debug('relatives:');
+    console.debug(JSON.stringify(relatives));
+    conversation.push({ role: 'system', content: 'person with dementia has relatives:' + JSON.stringify(relatives) });
+    const payments = await prisma.payment.findMany({ orderBy: { date: 'desc' } });
+    console.debug('payments:');
+    console.debug(JSON.stringify(payments));
     return conversation;
 }
 
@@ -60,6 +74,10 @@ async function getNextMessageInConversation(conversation: ConversationMessage[])
     }
 }
 
+async function hasReachedDecision(response: string | null): Promise<boolean> {
+    return response?.includes("#END_CHAT#") ?? false;
+}
+
 export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const userMessage = formData.get('userMessage') as string;
@@ -74,8 +92,12 @@ export async function POST(request: NextRequest) {
         console.error('No conversationId provided');
         const currentDateTime = new Date().toISOString();
         conversationId = currentDateTime.replace(/[^0-9]/g, '');
-        conversation = initializeConversation();
-        writeConversationToFile(conversationId, conversation);
+        conversation = await initializeConversation();
+        if (!conversation) {
+            console.error('Failed to initialize conversation');
+            conversation = [];
+        }
+        writeConversationToFile(conversationId, conversation!!);
     } else {
         conversation = await readConversationFromFile(conversationId);
         if (!conversation) {
@@ -86,14 +108,24 @@ export async function POST(request: NextRequest) {
     try {
         console.log("conversation: " + convertToJsonString(conversation))
         conversation.push({ role: 'user', content: userMessage });
-        const response = await getNextMessageInConversation(conversation);
+        let response = await getNextMessageInConversation(conversation);
         if (!response) {
             return NextResponse.json({ error: 'Failed to get response' }, { status: 500 });
         }
         console.log('Response:', response);
-        conversation.push({ role: 'assistant', content: response });
-        await writeConversationToFile(conversationId!!, conversation);
-        return NextResponse.json({ response: response, conversationId: conversationId });
+        console.log('hasReachedDecision:')
+        const decision = await hasReachedDecision(response);
+        console.log(decision)
+        if (decision) {
+            console.log('Decision reached');            
+            response = response.replace('#END_CHAT#', '');
+            conversation.push({ role: 'system', content: response });
+            conversation.push({ role: 'system', content: '#END_CHAT#' });
+        } else {
+            conversation.push({ role: 'system', content: response });    
+        }
+        writeConversationToFile(conversationId, conversation);
+        return NextResponse.json({ response: response, conversationId: conversationId, conversationCompeted: decision });
     } catch (error) {
         console.error('Error processing request:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
