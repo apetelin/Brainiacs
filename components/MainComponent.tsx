@@ -118,6 +118,7 @@ export const MainComponent: React.FC = () => {
         <React.Fragment>
             <AuroraBackground />
             <div className="flex flex-col items-center justify-center min-h-screen py-12 relative z-10">
+                <img src="/logo.png" alt="Logo" className="absolute top-4 left-4 h-80 w-80 object-contain  z-20"/>
                 <div className="flex items-center justify-center w-full">
                     <div className="relative w-[300px] h-[300px]">
                         <div className="absolute inset-0">
@@ -158,7 +159,7 @@ export const MainComponent: React.FC = () => {
                     {recordingError && <p className="text-red-500">{recordingError}</p>}
                     {transcriptionError && <p className="text-red-500">{transcriptionError}</p>}
                 </div>
-                {transcriptionHistory.length ? <TranscriptionHistory transcriptions={transcriptionHistory} /> : null}
+                {transcriptionHistory.length ? <TranscriptionHistory transcriptions={transcriptionHistory}/> : null}
             </div>
         </React.Fragment>
     );

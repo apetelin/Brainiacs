@@ -128,7 +128,7 @@ const AdminDashboard: React.FC = () => {
         <>
             <AuroraBackground warning={true} />
         <div className="text-white min-h-screen p-8" style={{opacity: '0.8'}}>
-            <h1 className="text-3xl font-bold mb-6">Admin Dashboard - Payments</h1>
+            <h1 className="text-3xl font-bold mb-6">Superviser Dashboard - Payments</h1>
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse bg-gray-800 rounded-lg overflow-hidden">
                     <thead>
