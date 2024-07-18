@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { promises as fs } from 'fs';
+import { headers } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
 const openai = new OpenAI({
@@ -61,13 +62,103 @@ async function writeConversationToFile(conversationId: string, conversation: Con
     }
 }
 
+async function createPayment(recipient: string, phone: string, details: string, amount: number) {
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const host = headers().get('host') || 'localhost:3000';
+    const apiUrl = `${protocol}://${host}/api/payments`;
+
+    const userId = 1; // Always set userId to 1
+    const date = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId, date, recipient, phone, details, amount }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to create payment: ${response.statusText}`);
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error('Error creating payment:', error);
+        throw error;
+    }
+}
+
+
 async function getNextMessageInConversation(conversation: ConversationMessage[]): Promise<string | null> {
     try {
+        const tools = [
+            {
+                type: "function",
+                function: {
+                    name: "create_payment",
+                    description: "Create a new payment",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            recipient: { type: "string", description: "Payment recipient" },
+                            phone: { type: "string", description: "Recipient phone number" },
+                            details: { type: "string", description: "Payment details" },
+                            amount: { type: "number", description: "Payment amount" },
+                        },
+                        required: ["recipient", "phone", "details", "amount"],
+                    },
+                },
+            },
+        ];
+
         const response = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: conversation,
+            tools: tools,
+            tool_choice: "auto",
         });
-        return response.choices[0].message.content;
+
+        const responseMessage = response.choices[0].message;
+
+        if (responseMessage.tool_calls) {
+            for (const toolCall of responseMessage.tool_calls) {
+                if (toolCall.function.name === "create_payment") {
+                    const args = JSON.parse(toolCall.function.arguments);
+                    try {
+                        const paymentResult = await createPayment(
+                            args.recipient,
+                            args.phone,
+                            args.details,
+                            args.amount
+                        );
+                        conversation.push({
+                            role: "function",
+                            name: "create_payment",
+                            content: JSON.stringify(paymentResult),
+                        });
+                    } catch (error) {
+                        console.error('Error creating payment:', error);
+                        conversation.push({
+                            role: "function",
+                            name: "create_payment",
+                            content: JSON.stringify({ error: `Failed to create payment: ${error.message}` }),
+                        });
+                    }
+                }
+            }
+
+            // Get final response after function call
+            const finalResponse = await openai.chat.completions.create({
+                model: "gpt-4o",
+                messages: conversation,
+            });
+
+            return finalResponse.choices[0].message.content;
+        }
+
+        return responseMessage.content;
     } catch (error) {
         console.error('Error getting next message in conversation:', error);
         return null;
@@ -101,10 +192,11 @@ export async function POST(request: NextRequest) {
     } else {
         conversation = await readConversationFromFile(conversationId);
         if (!conversation) {
-            return NextResponse.json({ result: "NOT OK" });;
+            return NextResponse.json({ result: "NOT OK" });
         }
         console.log(JSON.stringify(conversation));
     }
+
     try {
         console.log("conversation: " + convertToJsonString(conversation))
         conversation.push({ role: 'user', content: userMessage });

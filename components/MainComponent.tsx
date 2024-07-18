@@ -4,12 +4,14 @@ import * as React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faMicrophoneSlash } from '@fortawesome/free-solid-svg-icons';
 import { useAudioRecording } from './useAudioRecording';
-import { circles, maxCircleSize } from './constants';
+import { circles, maxCircleSize, maxVolume } from './constants';
 import { TranscriptionHistory } from './TranscriptionHistory';
 import { VolumeBar } from './VolumeBar';
 import { TTSComponent } from "@/components/TTSComponent";
 import { useUser } from './UserContext'; // New import
-import AdminDashboard from './AdminDashboard'; // New import
+import AdminDashboard from './AdminDashboard';
+import { AuroraBackground } from "@/components/AuroraBackground"; // New import
+import { EventSourceProvider } from './EventSourceContext';
 
 interface Transcription {
     text: string;
@@ -92,12 +94,13 @@ export const MainComponent: React.FC = () => {
 
     // New conditional rendering based on user role
     if (user === 'Mary') {
-        return <AdminDashboard />;
+        return <EventSourceProvider><AdminDashboard /></EventSourceProvider>;
     }
 
     return (
         <React.Fragment>
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 py-12">
+            <AuroraBackground />
+            <div className="flex flex-col items-center justify-center min-h-screen py-12 relative z-10">
                 <div className="flex items-center justify-center w-full mb-8">
                     <div className="relative w-[300px] h-[300px]">
                         <div className="absolute inset-0">
@@ -108,7 +111,7 @@ export const MainComponent: React.FC = () => {
                             onClick={handleToggleListening}
                             disabled={isStarting || isStopping}
                             style={{
-                                backgroundColor: isListening ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)',
+                                backgroundColor: isListening ? 'rgba(75, 75, 75, 0.7)' : 'rgba(75, 75, 75, 0.8)',
                             }}
                         >
                             <FontAwesomeIcon
