@@ -70,7 +70,7 @@ async function createPayment(recipient: string, phone: string, details: string, 
     const apiUrl = `${protocol}://${host}/api/payments`;
 
     const userId = 1; // Always set userId to 1
-    const date = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
+    const date = new Date().toISOString().replace('Z', '');
 
     try {
         const response = await fetch(apiUrl, {

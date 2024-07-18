@@ -158,7 +158,7 @@ export const MainComponent: React.FC = () => {
                     {recordingError && <p className="text-red-500">{recordingError}</p>}
                     {transcriptionError && <p className="text-red-500">{transcriptionError}</p>}
                 </div>
-                <TranscriptionHistory transcriptions={transcriptionHistory} />
+                {transcriptionHistory.length ? <TranscriptionHistory transcriptions={transcriptionHistory} /> : null}
             </div>
         </React.Fragment>
     );
