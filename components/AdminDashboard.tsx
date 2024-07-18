@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Toast } from './Toast';
 import { useEventSource } from './EventSourceContext';
+import { AuroraBackground } from "@/components/AuroraBackground";
 
 interface Payment {
     id: number;
@@ -124,7 +125,9 @@ const AdminDashboard: React.FC = () => {
     }
 
     return (
-        <div className="bg-gray-900 text-white min-h-screen p-8">
+        <>
+            <AuroraBackground warning={true} />
+        <div className="text-white min-h-screen p-8" style={{opacity: '0.8'}}>
             <h1 className="text-3xl font-bold mb-6">Admin Dashboard - Payments</h1>
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse bg-gray-800 rounded-lg overflow-hidden">
@@ -169,6 +172,7 @@ const AdminDashboard: React.FC = () => {
                 />
             ))}
         </div>
+            </>
     );
 };
 

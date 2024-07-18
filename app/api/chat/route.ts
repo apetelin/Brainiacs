@@ -94,7 +94,7 @@ async function createPayment(recipient: string, phone: string, details: string, 
 
 async function getNextMessageInConversation(conversation: ConversationMessage[]): Promise<string | null> {
     try {
-        const tools = [
+        const tools: OpenAI.ChatCompletionTool[] = [
             {
                 type: "function",
                 function: {
@@ -144,7 +144,7 @@ async function getNextMessageInConversation(conversation: ConversationMessage[])
                         conversation.push({
                             role: "function",
                             name: "create_payment",
-                            content: JSON.stringify({ error: `Failed to create payment: ${error.message}` }),
+                            content: JSON.stringify({ error: `Failed to create payment: ${JSON.stringify(error)}` }),
                         });
                     }
                 }

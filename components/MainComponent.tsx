@@ -12,8 +12,12 @@ import { useUser } from './UserContext'; // New import
 import AdminDashboard from './AdminDashboard';
 import { AuroraBackground } from "@/components/AuroraBackground"; // New import
 import { EventSourceProvider } from './EventSourceContext';
+import { useChat } from "@/components/useChat";
+import { sum } from "lodash";
+import { useTTS } from "@/components/useTTS";
 
 interface Transcription {
+    system: boolean;
     text: string;
     timestamp: Date;
 }
@@ -35,17 +39,31 @@ export const MainComponent: React.FC = () => {
         transcriptionError,
     } = useAudioRecording();
 
+    const {submitChat, sendingChat, lastReply} = useChat();
+    const {submitVoice} = useTTS();
+
     const [transcriptionHistory, setTranscriptionHistory] = React.useState<Transcription[]>([]);
     const [maxVolume, setMaxVolume] = React.useState(0);
 
     React.useEffect(() => {
         if (transcribedText) {
             setTranscriptionHistory(prev => [
-                { text: transcribedText, timestamp: new Date() },
+                { system: false, text: transcribedText, timestamp: new Date() },
                 ...prev
             ]);
+            submitChat(transcribedText);
         }
     }, [transcribedText]);
+
+    React.useEffect(() => {
+        if (lastReply) {
+            setTranscriptionHistory(prev => [
+                { system: true, text: lastReply, timestamp: new Date() },
+                ...prev
+            ]);
+            submitVoice(lastReply);
+        }
+    }, [lastReply])
 
     React.useEffect(() => {
         if (volume > maxVolume) {
@@ -101,7 +119,7 @@ export const MainComponent: React.FC = () => {
         <React.Fragment>
             <AuroraBackground />
             <div className="flex flex-col items-center justify-center min-h-screen py-12 relative z-10">
-                <div className="flex items-center justify-center w-full mb-8">
+                <div className="flex items-center justify-center w-full">
                     <div className="relative w-[300px] h-[300px]">
                         <div className="absolute inset-0">
                             {renderCircles()}
@@ -129,20 +147,19 @@ export const MainComponent: React.FC = () => {
                             </span>
                         </button>
                     </div>
-                    <div className="ml-8">
+                    {/*<div className="ml-8">
                         <VolumeBar
                             volume={volume}
                             maxVolume={maxVolume}
                             maxPossibleVolume={MAX_POSSIBLE_VOLUME}
                         />
-                    </div>
+                    </div>*/}
                 </div>
                 <div className="mt-4 text-white text-center">
                     {recordingError && <p className="text-red-500">{recordingError}</p>}
                     {transcriptionError && <p className="text-red-500">{transcriptionError}</p>}
                 </div>
                 <TranscriptionHistory transcriptions={transcriptionHistory} />
-                <TTSComponent />
             </div>
         </React.Fragment>
     );

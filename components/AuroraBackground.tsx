@@ -1,22 +1,31 @@
 import React from 'react';
 
-export const AuroraBackground: React.FC = () => {
+interface AuroraBackgroundProps {
+    warning?: boolean; // Prop indicating if there's a warning
+}
+
+export const AuroraBackground: React.FC<AuroraBackgroundProps> = ({ warning }) => {
+    // Determine the color scheme based on the `warning` prop
+    const gradient1Color = warning ? '#ffcc00' : '#00ff00';
+    const gradient2Color = warning ? '#ff3300' : '#00ffff';
+    const gradient3Color = warning ? '#ff0099' : '#ff00ff';
+
     return (
         <div className="aurora-container">
             <div className="static-background"></div>
             <svg className="waves" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="none">
                 <defs>
                     <linearGradient id="gradient1" x1="0%" y1="100%" x2="0%" y2="0%">
-                        <stop offset="0%" stopColor="#00ff00" stopOpacity="0.5" />
-                        <stop offset="100%" stopColor="#00ff00" stopOpacity="0" />
+                        <stop offset="0%" stopColor={gradient1Color} stopOpacity="0.5" />
+                        <stop offset="100%" stopColor={gradient1Color} stopOpacity="0" />
                     </linearGradient>
                     <linearGradient id="gradient2" x1="0%" y1="100%" x2="0%" y2="0%">
-                        <stop offset="0%" stopColor="#00ffff" stopOpacity="0.5" />
-                        <stop offset="100%" stopColor="#00ffff" stopOpacity="0" />
+                        <stop offset="0%" stopColor={gradient2Color} stopOpacity="0.5" />
+                        <stop offset="100%" stopColor={gradient2Color} stopOpacity="0" />
                     </linearGradient>
                     <linearGradient id="gradient3" x1="0%" y1="100%" x2="0%" y2="0%">
-                        <stop offset="0%" stopColor="#ff00ff" stopOpacity="0.5" />
-                        <stop offset="100%" stopColor="#ff00ff" stopOpacity="0" />
+                        <stop offset="0%" stopColor={gradient3Color} stopOpacity="0.5" />
+                        <stop offset="100%" stopColor={gradient3Color} stopOpacity="0" />
                     </linearGradient>
                 </defs>
 
