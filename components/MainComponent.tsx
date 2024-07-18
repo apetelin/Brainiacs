@@ -4,23 +4,17 @@ import * as React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faMicrophoneSlash } from '@fortawesome/free-solid-svg-icons';
 import { useAudioRecording } from './useAudioRecording';
-import { circles, maxCircleSize } from './constants';
+import { circles, maxCircleSize, maxVolume } from './constants';
 import { TranscriptionHistory } from './TranscriptionHistory';
 import { VolumeBar } from './VolumeBar';
-import { TTSComponent } from "@/components/TTSComponent";
-import { useUser } from './UserContext'; // New import
-import AdminDashboard from './AdminDashboard'; // New import
+import { AuroraBackground } from './AuroraBackground';
 
 interface Transcription {
     text: string;
     timestamp: Date;
 }
 
-const MAX_POSSIBLE_VOLUME = 200;
-
 export const MainComponent: React.FC = () => {
-    const { user } = useUser(); // New line
-
     const {
         isListening,
         isStarting,
@@ -34,7 +28,7 @@ export const MainComponent: React.FC = () => {
     } = useAudioRecording();
 
     const [transcriptionHistory, setTranscriptionHistory] = React.useState<Transcription[]>([]);
-    const [maxVolume, setMaxVolume] = React.useState(0);
+    const [currentMaxVolume, setCurrentMaxVolume] = React.useState(0);
 
     React.useEffect(() => {
         if (transcribedText) {
@@ -46,23 +40,23 @@ export const MainComponent: React.FC = () => {
     }, [transcribedText]);
 
     React.useEffect(() => {
-        if (volume > maxVolume) {
-            setMaxVolume(volume);
+        if (volume > currentMaxVolume) {
+            setCurrentMaxVolume(volume);
         }
     }, [volume]);
 
     React.useEffect(() => {
         if (!isListening) {
-            setMaxVolume(0);
+            setCurrentMaxVolume(0);
         }
     }, [isListening]);
 
-    const normalizedVolume = volume / MAX_POSSIBLE_VOLUME;
+    const normalizedVolume = volume / maxVolume;
 
     // Render function for circle components
     const renderCircles = () => {
         return circles.map((circle, index) => {
-            const currentSize = circle.baseSize + circle.scaleFactor * normalizedVolume * (maxCircleSize - circle.baseSize);
+            const currentSize = circle.baseSize + normalizedVolume * circle.baseSize * circle.scaleFactor;
             const size = Math.min(currentSize, maxCircleSize);
             return (
                 <div
@@ -90,14 +84,10 @@ export const MainComponent: React.FC = () => {
         toggleListening();
     }, [toggleListening, isListening]);
 
-    // New conditional rendering based on user role
-    if (user === 'Mary') {
-        return <AdminDashboard />;
-    }
-
     return (
         <React.Fragment>
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 py-12">
+            <AuroraBackground />
+            <div className="flex flex-col items-center justify-center min-h-screen py-12 relative z-10">
                 <div className="flex items-center justify-center w-full mb-8">
                     <div className="relative w-[300px] h-[300px]">
                         <div className="absolute inset-0">
@@ -108,7 +98,7 @@ export const MainComponent: React.FC = () => {
                             onClick={handleToggleListening}
                             disabled={isStarting || isStopping}
                             style={{
-                                backgroundColor: isListening ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)',
+                                backgroundColor: isListening ? 'rgba(75, 75, 75, 0.7)' : 'rgba(75, 75, 75, 0.8)',
                             }}
                         >
                             <FontAwesomeIcon
@@ -129,8 +119,8 @@ export const MainComponent: React.FC = () => {
                     <div className="ml-8">
                         <VolumeBar
                             volume={volume}
-                            maxVolume={maxVolume}
-                            maxPossibleVolume={MAX_POSSIBLE_VOLUME}
+                            maxVolume={currentMaxVolume}
+                            maxPossibleVolume={maxVolume}
                         />
                     </div>
                 </div>
@@ -139,7 +129,6 @@ export const MainComponent: React.FC = () => {
                     {transcriptionError && <p className="text-red-500">{transcriptionError}</p>}
                 </div>
                 <TranscriptionHistory transcriptions={transcriptionHistory} />
-                <TTSComponent />
             </div>
         </React.Fragment>
     );
