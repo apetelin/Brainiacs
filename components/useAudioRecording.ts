@@ -41,8 +41,9 @@ export const useAudioRecording = () => {
         if (audioRef.current.stream) {
             audioRef.current.stream.getTracks().forEach(track => track.stop());
         }
-        if (audioRef.current.audioContext) {
+        if (audioRef.current.audioContext && audioRef.current.audioContext.state !== 'closed') {
             await audioRef.current.audioContext.close();
+            audioRef.current.audioContext = null;
         }
         if (audioRef.current.animationFrame) {
             cancelAnimationFrame(audioRef.current.animationFrame);

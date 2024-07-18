@@ -1,7 +1,13 @@
 import * as React from 'react';
 
+interface Transcription {
+    system: boolean;
+    text: string;
+    timestamp: Date;
+}
+
 interface TranscriptionHistoryProps {
-    transcriptions: { text: string; timestamp: Date }[];
+    transcriptions: Transcription[];
 }
 
 export const TranscriptionHistory: React.FC<TranscriptionHistoryProps> = ({ transcriptions }) => {
@@ -13,13 +19,15 @@ export const TranscriptionHistory: React.FC<TranscriptionHistoryProps> = ({ tran
                     <p className="text-gray-400">...</p>
                 ) : (
                     <ul className="space-y-2">
-                        {transcriptions.map((item, index) => (
-                            <li key={index} className="text-white">
-                <span className="text-gray-400 mr-2">
-                  {item.timestamp.toLocaleTimeString()}
-                </span>
-                                {item.text}
-                            </li>
+                        {transcriptions.map((transcription, index) => (
+                            <div
+                                key={index}
+                                className={`p-2 rounded-lg shadow-md ${transcription.system ? 'text-right bg-blue-800' : 'text-left bg-gray-600'}`}
+                                style={{ maxWidth: '90%', marginLeft: transcription.system ? 'auto' : '0', marginRight: transcription.system ? '0' : 'auto' }}
+                            >
+                                <p className="text-sm">{transcription.text}</p>
+                                <p className="text-xs text-gray-500">{transcription.timestamp.toLocaleString()}</p>
+                            </div>
                         ))}
                     </ul>
                 )}

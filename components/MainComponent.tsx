@@ -12,8 +12,12 @@ import { useUser } from './UserContext'; // New import
 import AdminDashboard from './AdminDashboard';
 import { AuroraBackground } from "@/components/AuroraBackground"; // New import
 import { EventSourceProvider } from './EventSourceContext';
+import { useChat } from "@/components/useChat";
+import { sum } from "lodash";
+import { useTTS } from "@/components/useTTS";
 
 interface Transcription {
+    system: boolean;
     text: string;
     timestamp: Date;
 }
@@ -35,17 +39,31 @@ export const MainComponent: React.FC = () => {
         transcriptionError,
     } = useAudioRecording();
 
+    const {submitChat, sendingChat, lastReply} = useChat();
+    const {submitVoice} = useTTS();
+
     const [transcriptionHistory, setTranscriptionHistory] = React.useState<Transcription[]>([]);
     const [maxVolume, setMaxVolume] = React.useState(0);
 
     React.useEffect(() => {
         if (transcribedText) {
             setTranscriptionHistory(prev => [
-                { text: transcribedText, timestamp: new Date() },
+                { system: false, text: transcribedText, timestamp: new Date() },
                 ...prev
             ]);
+            submitChat(transcribedText);
         }
     }, [transcribedText]);
+
+    React.useEffect(() => {
+        if (lastReply) {
+            setTranscriptionHistory(prev => [
+                { system: true, text: lastReply, timestamp: new Date() },
+                ...prev
+            ]);
+            submitVoice(lastReply);
+        }
+    }, [lastReply])
 
     React.useEffect(() => {
         if (volume > maxVolume) {
@@ -142,7 +160,6 @@ export const MainComponent: React.FC = () => {
                     {transcriptionError && <p className="text-red-500">{transcriptionError}</p>}
                 </div>
                 <TranscriptionHistory transcriptions={transcriptionHistory} />
-                <TTSComponent />
             </div>
         </React.Fragment>
     );
