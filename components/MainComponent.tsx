@@ -119,7 +119,7 @@ export const MainComponent: React.FC = () => {
         <React.Fragment>
             <AuroraBackground />
             <div className="flex flex-col items-center justify-center min-h-screen py-12 relative z-10">
-                <div className="flex items-center justify-center w-full mb-8">
+                <div className="flex items-center justify-center w-full">
                     <div className="relative w-[300px] h-[300px]">
                         <div className="absolute inset-0">
                             {renderCircles()}
@@ -147,13 +147,13 @@ export const MainComponent: React.FC = () => {
                             </span>
                         </button>
                     </div>
-                    <div className="ml-8">
+                    {/*<div className="ml-8">
                         <VolumeBar
                             volume={volume}
                             maxVolume={maxVolume}
                             maxPossibleVolume={MAX_POSSIBLE_VOLUME}
                         />
-                    </div>
+                    </div>*/}
                 </div>
                 <div className="mt-4 text-white text-center">
                     {recordingError && <p className="text-red-500">{recordingError}</p>}

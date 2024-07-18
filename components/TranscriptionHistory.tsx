@@ -13,8 +13,7 @@ interface TranscriptionHistoryProps {
 export const TranscriptionHistory: React.FC<TranscriptionHistoryProps> = ({ transcriptions }) => {
     return (
         <React.Fragment>
-            <div className="mt-8 w-full max-w-2xl mx-auto bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Our dialogue</h2>
+            <div className="mt-8 w-full max-w-2xl mx-auto w-90 bg-gray-800 rounded-lg shadow-lg p-6">
                 {transcriptions.length === 0 ? (
                     <p className="text-gray-400">...</p>
                 ) : (
@@ -23,11 +22,17 @@ export const TranscriptionHistory: React.FC<TranscriptionHistoryProps> = ({ tran
                             <div
                                 key={index}
                                 className={`p-2 rounded-lg shadow-md ${transcription.system ? 'text-right bg-blue-800' : 'text-left bg-gray-600'}`}
-                                style={{ maxWidth: '90%', marginLeft: transcription.system ? 'auto' : '0', marginRight: transcription.system ? '0' : 'auto' }}
+                                style={{
+                                    maxWidth: '90%',
+                                    marginLeft: transcription.system ? 'auto' : '0',
+                                    marginRight: transcription.system ? '0' : 'auto'
+                                }}
                             >
-                                <p className="text-sm">{transcription.text}</p>
-                                <p className="text-xs text-gray-500">{transcription.timestamp.toLocaleString()}</p>
+                                <span className="text-xs text-gray-500" style={{ marginRight: '10px' }}>{new Date(transcription.timestamp).toLocaleTimeString()}</span>
+                                <span className="text-sm">{transcription.text}</span>
+
                             </div>
+
                         ))}
                     </ul>
                 )}
