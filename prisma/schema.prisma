@@ -20,13 +20,15 @@ model Relative {
 }
 
 model Payment {
-  id        Int    @id @default(autoincrement())
-  userId    Int
-  date      String
-  amount    Float
-  recipient String
-  phone     String
-  details   String
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  date        String
+  recipient   String
+  phone       String
+  details     String
+  amount      Float
+  status      String   @default("pending") // Can be "pending", "approved", "rejected", "notified"
+  isApproved  Boolean? // null for notifications, true/false for approval requests
 
   @@unique([userId, date, recipient])
 }

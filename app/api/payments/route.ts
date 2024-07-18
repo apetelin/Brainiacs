@@ -16,9 +16,26 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-    const { userId, date, recipient, phone, details } = await request.json();
+    const { userId, date, recipient, phone, details, amount } = await request.json();
+
     const payment = await prisma.payment.create({
-        data: { userId, date, recipient, phone, details },
+        data: {
+            userId,
+            date,
+            recipient,
+            phone,
+            details,
+            amount,
+            status: amount < 100 ? "notified" : "pending",
+            isApproved: amount < 100 ? null : false
+        },
     });
+
+    // Send event for new payment
+    const sendEventToAll = (global as any).sendEventToAll;
+    if (sendEventToAll) {
+        sendEventToAll({ type: 'newPayment', payment });
+    }
+
     return NextResponse.json(payment, { status: 201 });
 }
